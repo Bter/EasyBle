@@ -1,0 +1,18 @@
+package cn.com.bter.easyble.utils;
+
+/**
+ * Created by admin on 2017/10/25.
+ */
+
+public interface Contacts {
+    public final String SERVICE_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
+    public final String NOTIFY_UUID = "0000ffe2-0000-1000-8000-00805f9b34fb";
+
+
+    String CHANGAN_SERVICE_UUID = "D973F2E0-B19E-11E2-9E96-0800200C9A66";
+    String CHANGAN_SERVICE_READ_UUID = "D973F2E1-B19E-11E2-9E96-0800200C9A66";
+    String CHANGAN_SERVICE_WRITE_UUID = "D973F2E2-B19E-11E2-9E96-0800200C9A66";
+
+    String CHANGAN_SERVICE_RSSI_UUID = "2f7ec190-3d25-11e7-9598-0800200c9a66";
+    String CHANGAN_RSSI_CHAR_UUID = "2f7ec191-3d25-11e7-9598-0800200c9a66";
+}
