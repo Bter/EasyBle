@@ -177,7 +177,7 @@ public class BleScanManager {
      * @param easyBleLeScanCallback
      */
     public void startSacn(final EasyBleLeScanCallback easyBleLeScanCallback){
-        if(null != mBluetoothAdapter && mBluetoothAdapter.isEnabled()) {
+        if(!easyBleLeScanCallback.isScaning()) {
             scanHandler.post(new Runnable() {
                 @Override
                 public void run() {
