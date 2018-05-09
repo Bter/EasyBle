@@ -1,1 +1,1 @@
-include ':app', ':EasyBleLib', ':Bleperipherallib'
+include ':app', ':EasyBleLib', ':BleperipheralLib'
