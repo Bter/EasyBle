@@ -241,6 +241,7 @@ public class EasyBleManager {
         if(mAutoScanConnectBleLeScanCallback.isScaning()) {
             tryStopAutoConnectBle(false);
         }
+        mAutoScanConnectBleLeScanCallback.setAutoConnect(autoConnect);
         mAutoScanConnectBleLeScanCallback.changeFilterArg(deviceNameOrMac,timeOut,isAddress);
         mBleScanManager.startScan(mAutoScanConnectBleLeScanCallback);
     }

@@ -36,6 +36,10 @@ public class AutoScanConnectBleLeScanCallback extends FilterBleLeScanCallback {
         setBleDeviceStateListener(mScanResult);
     }
 
+    public void setAutoConnect(boolean autoConnect){
+        this.autoConnect = autoConnect;
+    }
+
     public void setBleDeviceStateListener(IScanResult mScanResult){
         this.mScanResult = mScanResult;
     }
