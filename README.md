@@ -4,7 +4,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 主要API已经封装在EasyBleManager中。
 以下只列举常用方法。
 
-一、Base 基础部分
+一、Base 基础部分<br/>
 关键类：EasyBleManager
 
 1.EasyBleManager.isEnabled();//蓝牙是否已经打开
@@ -17,7 +17,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 5.EasyBleManager. destroy();//
 
-二、Scan 扫描部分
+二、Scan 扫描部分<br/>
 关键类：EasyBleManager、EasyBleLeScanCallback
 
 1.EasyBleManager.hasScaning();//是否有扫描正在进行
@@ -62,46 +62,46 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 13.BluetoothDeviceBean.getConnectStatus();//获取连接状态
 
-四、Options 操作部分
+四、Options 操作部分<br/>
 关键类：BluetoothDeviceBean
 
-1.发现服务(注意以下所有操作均在发现服务后才能操作)
+1.发现服务(注意以下所有操作均在发现服务后才能操作)<br/>
 BluetoothDeviceBean.discoverServices();
 
-2.设置发现服务回调
+2.设置发现服务回调<br/>
 BluetoothDeviceBean.setmOnDiscoverServiceCallBack(CallBack)
 
-3.刷新缓存,刷新BLE设备的Services缓存
+3.刷新缓存,刷新BLE设备的Services缓存<br/>
 BluetoothDeviceBean.refreshDeviceCache();
 
-4.enable notify,打开通知监听
+4.enable notify,打开通知监听<br/>
 BluetoothDeviceBean.enableNotify(String serviceUUID, String notifyUUID);
 
-5.listenter notify CallBack,监听通知（类似于接收数据）
+5.listenter notify CallBack,监听通知（类似于接收数据）<br/>
 BluetoothDeviceBean.setmOnCharacteristicChangedCallBack(CallBack);
 
-6.write no response,发送数据
+6.write no response,发送数据<br/>
 BluetoothDeviceBean.writeNoResponse(String serviceUUID,String writeUUID,byte[] data);
 
-7.write data assign type，指定发送模式来发送数据
+7.write data assign type，指定发送模式来发送数据<br/>
 BluetoothDeviceBean.write(String serviceUUID,String writeUUID,byte[] data,int writeType);
 
 
-8.listenter write CallBack,监听发送回调（注意并非接收数据）
+8.listenter write CallBack,监听发送回调（注意并非接收数据）<br/>
 BluetoothDeviceBean.setmOnCharacteristicWriteCallBack(CallBack);
 
 
-9.readCharacteristic，主动读取数据
+9.readCharacteristic，主动读取数据<br/>
 BluetoothDeviceBean.read(String serviceUUID,String readUUID);
 
-10.listenter read CallBack，监听读取到的数据
+10.listenter read CallBack，监听读取到的数据<br/>
 BluetoothDeviceBean.setmOnCharacteristicReadCallBack(CallBack);
 
 
-11.读取当前连接的设备的信号强度
+11.读取当前连接的设备的信号强度<br/>
 BluetoothDeviceBean.readRemoteRssi()；
 
-12.listenter Rssi CallBack，监听读取到的信号强度
+12.listenter Rssi CallBack，监听读取到的信号强度<br/>
 BluetoothDeviceBean.setmOnReadRemoteRssiCallBack（CallBack）；
 
 
