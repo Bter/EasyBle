@@ -11,7 +11,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 4.EasyBleManager.hasScaning();//是否正在扫描
 
-5.EasyBleManager.startSacn(EasyBleLeScanCallback easyBleLeScanCallback);//扫描BLE
+5.EasyBleManager.startScan(EasyBleLeScanCallback easyBleLeScanCallback);//扫描BLE
 
 6.EasyBleManager.stopScan(EasyBleLeScanCallback easyBleLeScanCallback);//停止当前回调扫描
 
