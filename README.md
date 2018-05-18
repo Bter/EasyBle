@@ -3,7 +3,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 所有API已经封装在EasyBleManager中。关键类EasyBleManager、BluetoothDeviceBean、EasyBleLeScanCallback
 
-/*********************************一、Base 基础部分***************************************/
+一、Base 基础部分
 
 1.EasyBleManager.isEnabled();//蓝牙是否已经打开
 
@@ -15,7 +15,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 5.EasyBleManager. destroy();//
 
-/*********************************二、Scan 扫描部分***************************************/
+二、Scan 扫描部分
 
 1.EasyBleManager.hasScaning();//是否有扫描正在进行
 
@@ -31,7 +31,7 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 7.EasyBleManager.cancelAutoManagerDevices();//实验功能（experiment），取消自动维护设备池任务
 
-/*********************************三、Connect 连接部分***************************************/
+三、Connect 连接部分
 
 1.EasyBleManager.hasConnected();//是否已经有连接
 
@@ -55,6 +55,6 @@ Android BLE封装，支持多连接BLE，方便BLE开发者快速集成。
 
 11.BluetoothDeviceBean.disConnect();//断开连接
 
-/*********************************四、Options 操作部分***************************************/
+四、Options 操作部分
 
 
