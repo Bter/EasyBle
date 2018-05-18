@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,6 +33,7 @@ import cn.com.bter.easyble.easyblelib.scan.FilterBleLeScanCallback;
 import cn.com.bter.easyble.easyblelib.utils.LogUtil;
 import cn.com.bter.easyble.fragment.OptionsFragment;
 import cn.com.bter.easyble.utils.CommonUtils;
+import cn.com.bter.easyble.utils.ToastUtil;
 import cn.com.bter.easyble.view.RecycleViewDivider;
 
 public class MainActivity extends AppCompatActivity{
@@ -76,14 +78,14 @@ public class MainActivity extends AppCompatActivity{
         refreshRemoteRssiHandler = new Handler(refreshRemoteRssiThrad.getLooper());
 
         manager = new EasyBleManager(this,mBleDeviceStateListener);
-        manager.startSacn(scanCallback);
+        startScan();
         /*manager.autoConnectBle("00:1B:10:A2:02:C5",1000 * 10,true,false);
         manager.autoConnectBle("00:1B:10:A0:2C:1A",1000 * 10,true,false);*/
 
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                manager.startSacn(scanCallback);
+                startScan();
             }
         });
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
@@ -92,6 +94,21 @@ public class MainActivity extends AppCompatActivity{
                 manager.stopScan(scanCallback);
             }
         });
+    }
+
+    /**
+     * 扫描BLE
+     */
+    private void startScan(){
+        if(!manager.isEnabled()) {
+            ToastUtil.show(R.string.ble_disable);
+            return;
+        }
+        if(!manager.isSupportBle()){
+            ToastUtil.show(R.string.ble_not_support);
+            return;
+        }
+        manager.startScan(scanCallback);
     }
 
     public void addIBleDeviceStateListener(IBleDeviceStateListener mIBleDeviceStateListener) {

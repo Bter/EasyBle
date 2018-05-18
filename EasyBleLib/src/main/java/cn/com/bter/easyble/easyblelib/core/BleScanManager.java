@@ -176,7 +176,7 @@ public class BleScanManager {
      * 默认超时时间为10s
      * @param easyBleLeScanCallback
      */
-    public void startSacn(final EasyBleLeScanCallback easyBleLeScanCallback){
+    public void startScan(final EasyBleLeScanCallback easyBleLeScanCallback){
         if(!easyBleLeScanCallback.isScaning()) {
             scanHandler.post(new Runnable() {
                 @Override
@@ -214,11 +214,13 @@ public class BleScanManager {
                     return true;
                 } else {
                     stopScan(easyBleLeScanCallback);
-                    LogUtil.w(TAG,">>>>>>>>>>>>>>>>>>>startSacn faild<<<<<<<<<<<<<<<<<<");
+                    LogUtil.w(TAG,">>>>>>>>>>>>>>>>>>>startScan faild<<<<<<<<<<<<<<<<<<");
                 }
             }else{
                 LogUtil.w(TAG,"this easyBleLeScanCallback is scaning");
             }
+        } else {
+            LogUtil.w(TAG,"BluetoothAdapter is null or disable");
         }
         return false;
     }

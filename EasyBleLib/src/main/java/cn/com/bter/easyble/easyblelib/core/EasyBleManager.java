@@ -9,11 +9,7 @@ import android.content.pm.PackageManager;
 import java.util.Collection;
 
 import cn.com.bter.easyble.easyblelib.interfaces.IBleDeviceStateListener;
-import cn.com.bter.easyble.easyblelib.core.BleConnectManager;
-import cn.com.bter.easyble.easyblelib.core.BluetoothDeviceBean;
 import cn.com.bter.easyble.easyblelib.connect.AutoScanConnectBleLeScanCallback;
-import cn.com.bter.easyble.easyblelib.core.BleScanManager;
-import cn.com.bter.easyble.easyblelib.core.EasyBleLeScanCallback;
 import cn.com.bter.easyble.easyblelib.interfaces.OnBluetoothAdapterStateChangeListener;
 import cn.com.bter.easyble.easyblelib.receiver.BluetoothAdapterStateChangeReceiver;
 
@@ -158,8 +154,8 @@ public class EasyBleManager {
      * 默认超时时间为10s
      * @param easyBleLeScanCallback
      */
-    public void startSacn(EasyBleLeScanCallback easyBleLeScanCallback){
-        mBleScanManager.startSacn(easyBleLeScanCallback);
+    public void startScan(EasyBleLeScanCallback easyBleLeScanCallback){
+        mBleScanManager.startScan(easyBleLeScanCallback);
     }
 
     /**
@@ -246,7 +242,7 @@ public class EasyBleManager {
             tryStopAutoConnectBle(false);
         }
         mAutoScanConnectBleLeScanCallback.changeFilterArg(deviceNameOrMac,timeOut,isAddress);
-        mBleScanManager.startSacn(mAutoScanConnectBleLeScanCallback);
+        mBleScanManager.startScan(mAutoScanConnectBleLeScanCallback);
     }
 
     /**

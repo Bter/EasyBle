@@ -1,7 +1,9 @@
 package cn.com.bter.easyble;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import java.util.List;
 
+import cn.com.bter.easyble.utils.ToastUtil;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -25,6 +28,7 @@ public class IndexActivity extends AppCompatActivity implements EasyPermissions.
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index_layout);
+        ToastUtil.init(this);
     }
 
     @Override
@@ -72,8 +76,22 @@ public class IndexActivity extends AppCompatActivity implements EasyPermissions.
     }
 
     private void startMainActivity(){
-        startActivity(new Intent(IndexActivity.this,MainActivity.class));
+        if(isLocationEnabled()) {
+        }else{
+            ToastUtil.show(R.string.location_disable);
+        }
+        startActivity(new Intent(IndexActivity.this, MainActivity.class));
         finish();
+    }
+
+    /**
+     * 部分手机需要打开定位功能
+     * @return
+     */
+    public boolean isLocationEnabled() {
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                /*|| locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)*/;
     }
 
     /**

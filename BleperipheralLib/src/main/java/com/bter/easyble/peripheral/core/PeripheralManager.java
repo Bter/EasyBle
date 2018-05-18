@@ -30,9 +30,9 @@ public class PeripheralManager {
     private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
     private boolean isInit = false;
 
-    short mMajor;
-    short mMinor;
-    byte mTxPower;
+    short mMajor = 0xF1;
+    short mMinor = 0xF2;
+    byte mTxPower = (byte) 0xF3;
     static String SERVICE_UUID = "0000ffe1-0000-1000-8000-00805f9b34fb";
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -60,7 +60,7 @@ public class PeripheralManager {
     }
 
     /**
-     * is support ble?
+     * is support ble
      */
     public boolean isSupportBle() {
         if(isInit()) {
@@ -70,6 +70,9 @@ public class PeripheralManager {
         return false;
     }
 
+    /**
+     * 开启广播
+     */
     public void startAdvertiser(){
         if(isInit()){
             if(mBluetoothLeAdvertiser != null){
@@ -79,12 +82,40 @@ public class PeripheralManager {
         }
     }
 
-    public AdvertiseSettings createAdvSettings(boolean connectable, int timeoutMillis) {
+    public void stopAdvertising(){
+        if(isInit()){
+            if(mBluetoothLeAdvertiser != null){
+                mBluetoothLeAdvertiser.stopAdvertising(mAdvCallback);
+            }
+        }
+    }
+
+    /**
+     * 创建广播设置
+     * @param connectable
+     * @param timeoutMillis 广播时长单位秒，但为0时，代表无时间限制会一直广播
+     * @return
+     */
+    private AdvertiseSettings createAdvSettings(boolean connectable, int timeoutMillis) {
         AdvertiseSettings.Builder builder = new AdvertiseSettings.Builder();
         //设置广播的模式, 功耗相关
+        /**
+         * 设置广播的模式，低功耗，平衡和低延迟三种模式；
+            对应  AdvertiseSettings.ADVERTISE_MODE_LOW_POWER  ,ADVERTISE_MODE_BALANCED ,ADVERTISE_MODE_LOW_LATENCY
+            从左右到右，广播的间隔会越来越短
+         */
         builder.setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_BALANCED);
         builder.setConnectable(connectable);
-        builder.setTimeout(timeoutMillis);
+        builder.setTimeout(timeoutMillis * 1000);
+        /**
+         * 设置广播的信号强度
+         * 常量有AdvertiseSettings.ADVERTISE_TX_POWER_ULTRA_LOW, ADVERTISE_TX_POWER_LOW, ADVERTISE_TX_POWER_MEDIUM, ADVERTISE_TX_POWER_HIGH
+         从左到右分别表示强度越来越强.
+         举例：当设置为ADVERTISE_TX_POWER_ULTRA_LOW时，
+         手机1和手机2放在一起，手机2扫描到的rssi信号强度为-56左右，
+         当设置为ADVERTISE_TX_POWER_HIGH  时， 扫描到的信号强度为-33左右，
+         信号强度越大，表示手机和设备靠的越近
+         */
         builder.setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH);
         AdvertiseSettings mAdvertiseSettings = builder.build();
         if (mAdvertiseSettings == null) {
@@ -94,7 +125,7 @@ public class PeripheralManager {
     }
 
     //设置scan广播数据
-    public static AdvertiseData createScanAdvertiseData(short major, short minor, byte txPower) {
+    private static AdvertiseData createScanAdvertiseData(short major, short minor, byte txPower) {
         AdvertiseData.Builder builder = new AdvertiseData.Builder();
         builder.setIncludeDeviceName(true);
 
@@ -112,9 +143,9 @@ public class PeripheralManager {
     }
 
     /**
-     2      * create AdvertiseDate for iBeacon
-     3      */
-    public static AdvertiseData createIBeaconAdvertiseData(UUID proximityUuid, short major, short minor, byte txPower) {
+      * create AdvertiseDate for iBeacon
+    */
+    private static AdvertiseData createIBeaconAdvertiseData(UUID proximityUuid, short major, short minor, byte txPower) {
         String[] uuidstr = proximityUuid.toString().replaceAll("-", "").toLowerCase().split("");
         byte[] uuidBytes = new byte[16];
         for (int i = 1, x = 0; i < uuidstr.length; x++) {

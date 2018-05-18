@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">EasyBle</string>
+    <string name="ble_disable">蓝牙未打开</string>
+    <string name="ble_not_support">不支持蓝牙4.0</string>
+    <string name="location_disable">定位未打开</string>
 </resources>
