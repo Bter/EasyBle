@@ -191,7 +191,8 @@ public class BleConnectManager {
      */
     private IConnectStateListener mConnectStateListener = new IConnectStateListener() {
         @Override
-        public void connectStateChange(BluetoothDeviceBean device, int currentState) {
+        public void connectStateChange(DeviceConnectBean dev, int currentState) {
+            BluetoothDeviceBean device = (BluetoothDeviceBean) dev;
             if(currentState == BluetoothProfile.STATE_CONNECTED || currentState == BluetoothProfile.STATE_CONNECTING){
                 connectedOrConnectingDevices.put(device.getBleDevice().getAddress(),device);
                 if(currentState == BluetoothProfile.STATE_CONNECTED) {

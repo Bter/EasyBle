@@ -15,5 +15,5 @@ interface IConnectStateListener {
      * or {@link BluetoothProfile#STATE_CONNECTING}
      * or {@link BluetoothDeviceBean#STATE_CONNECT_FAILD}当从未连接成功，由{@link BluetoothProfile#STATE_DISCONNECTED}触发
      */
-    void connectStateChange(BluetoothDeviceBean device, int currentState);
+    void connectStateChange(DeviceConnectBean device, int currentState);
 }

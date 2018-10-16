@@ -312,7 +312,11 @@ public class EasyBleManager {
     }
 
     public void destroy(){
-        mContext.unregisterReceiver(mBluetoothAdapterStateChangeReceiver);
+        try {
+            mContext.unregisterReceiver(mBluetoothAdapterStateChangeReceiver);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         mBleConnectManager.destroy();
         mBleScanManager.destroy();
     }
