@@ -16,15 +16,6 @@ import java.util.List;
 import java.util.UUID;
 
 import cn.com.bter.easyble.easyblelib.base.BluetoothDeviceBase;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicChangedCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicReadCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicWriteCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnDescriptorReadCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnDescriptorWriteCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnMtuChangedCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnReadRemoteRssiCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnReliableWriteCompletedCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnServicesDiscoveredCallBack;
 import cn.com.bter.easyble.easyblelib.utils.LogUtil;
 
 /**
@@ -201,7 +192,7 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
      * 是否发现成功的前提是蓝牙已经连接
      * @return
      */
-    public boolean discoverServices(){
+    private boolean discoverServices(){
         if(isConnected() && mBluetoothGatt != null){
             return mBluetoothGatt.discoverServices();
         }
@@ -323,7 +314,11 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
                         //当前状态为断开连接，但从未连接成功过，所以认为是连接失败
                         poastConnectState(DeviceConnectBean.this, STATE_CONNECT_FAILD);
                     }else{
-                        poastConnectState(DeviceConnectBean.this, newState);
+                        if(newState == BluetoothProfile.STATE_CONNECTED){
+                            discoverServices();
+                        }else {
+                            poastConnectState(DeviceConnectBean.this, newState);
+                        }
                     }
                 }else{//应该通知，让其他对象知道该对象关闭了
                     poastConnectState(null,newState);//应该永远不会调用到
@@ -356,8 +351,10 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
             List<BluetoothGattService> services = getServices();
             if(services != null && services.size() > 0){
                 isServiceDiscovered = true;
+                poastConnectState(DeviceConnectBean.this, BluetoothProfile.STATE_CONNECTED);
+            }else{
+                disConnect();
             }
-            DeviceConnectBean.this.onServicesDiscovered(DeviceConnectBean.this,services,status);
         }
 
         @Override
@@ -423,5 +420,4 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
     protected abstract void onCharacteristicChanged(DeviceConnectBean deviceConnectBean, BluetoothGattCharacteristic characteristic);
     protected abstract void onCharacteristicWrite(DeviceConnectBean deviceConnectBean, BluetoothGattCharacteristic characteristic, int status);
     protected abstract void onCharacteristicRead(DeviceConnectBean deviceConnectBean, BluetoothGattCharacteristic characteristic, int status);
-    protected abstract void onServicesDiscovered(DeviceConnectBean deviceConnectBean, List<BluetoothGattService> services, int status);
 }

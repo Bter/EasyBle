@@ -71,7 +71,6 @@ public class OptionsFragment extends Fragment {
 
     private Handler mHandler = new Handler();
 
-    private boolean isSelectCharacteristic = false;
     private int selectType = 1;
 
     private HandlerThread handlerThread = new HandlerThread("back thread");
@@ -203,11 +202,9 @@ public class OptionsFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         clearBuild();
-        isSelectCharacteristic = false;
         writeBluetoothGattCharacteristic = null;
         readBluetoothGattCharacteristic = null;
         device.setmOnCharacteristicChangedCallBack(null)
-                .setmOnDiscoverServiceCallBack(null)
                 .setmOnCharacteristicReadCallBack(null);
 
         if(backHandler != null) {
@@ -353,9 +350,8 @@ public class OptionsFragment extends Fragment {
     private void selectService(boolean isSelectCharacteristic,int selectType){
         if(device != null){
             if(device.isConnected()){
-                this.isSelectCharacteristic = isSelectCharacteristic;
                 this.selectType = selectType;
-                device.discoverServices();
+                showService(device.getServices());
             }else{
                 clickStateView();
             }
@@ -531,7 +527,6 @@ public class OptionsFragment extends Fragment {
                 if(null != connectState && device != null){
 
                     device.setmOnCharacteristicChangedCallBack(mOptionsCallBack)
-                            .setmOnDiscoverServiceCallBack(mOptionsCallBack)
                             .setmOnCharacteristicReadCallBack(mOptionsCallBack)
                             .setmOnCharacteristicWriteCallBack(mOptionsCallBack);
 
@@ -647,18 +642,6 @@ public class OptionsFragment extends Fragment {
                         }
                     }
                 });
-            }
-        }
-
-        @Override
-        public void onServicesDiscovered(BluetoothDeviceBean device, List<BluetoothGattService> services, int status) {
-            LogUtil.i("onServicesDiscovered",">>>>>>>>>>>>>>>>>>>>>>> " + (status == BluetoothGatt.GATT_SUCCESS));
-            if(null != device && OptionsFragment.this.device != null
-                    && device.getBleDevice().equals(OptionsFragment.this.device.getBleDevice())) {
-                if (isSelectCharacteristic) {
-                    isSelectCharacteristic = false;
-                    showService(services);
-                }
             }
         }
     };

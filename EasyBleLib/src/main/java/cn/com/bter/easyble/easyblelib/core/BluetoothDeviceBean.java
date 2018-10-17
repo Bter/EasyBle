@@ -2,20 +2,15 @@ package cn.com.bter.easyble.easyblelib.core;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothProfile;
-import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
 
-import cn.com.bter.easyble.easyblelib.base.BluetoothDeviceBase;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicChangedCallBack;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicReadCallBack;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicWriteCallBack;
@@ -24,7 +19,6 @@ import cn.com.bter.easyble.easyblelib.interfaces.IOnDescriptorWriteCallBack;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnMtuChangedCallBack;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnReadRemoteRssiCallBack;
 import cn.com.bter.easyble.easyblelib.interfaces.IOnReliableWriteCompletedCallBack;
-import cn.com.bter.easyble.easyblelib.interfaces.IOnServicesDiscoveredCallBack;
 import cn.com.bter.easyble.easyblelib.utils.LogUtil;
 
 /**
@@ -38,7 +32,6 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
 
     private static final String UUID_CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR = "00002902-0000-1000-8000-00805f9b34fb";
 
-    private IOnServicesDiscoveredCallBack mOnDiscoverServiceCallBack;
     private IOnCharacteristicWriteCallBack mOnCharacteristicWriteCallBack;
     private IOnCharacteristicReadCallBack mOnCharacteristicReadCallBack;
     private IOnCharacteristicChangedCallBack mOnCharacteristicChangedCallBack;
@@ -557,18 +550,6 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         if(null != mOnCharacteristicReadCallBack){
             mOnCharacteristicReadCallBack.onCharacteristicRead(BluetoothDeviceBean.this,characteristic,status);
         }
-    }
-
-    @Override
-    protected void onServicesDiscovered(DeviceConnectBean deviceConnectBean, List<BluetoothGattService> services, int status) {
-        if(mOnDiscoverServiceCallBack != null){
-            mOnDiscoverServiceCallBack.onServicesDiscovered(BluetoothDeviceBean.this,services,status);
-        }
-    }
-
-    public BluetoothDeviceBean setmOnDiscoverServiceCallBack(IOnServicesDiscoveredCallBack mOnDiscoverServiceCallBack){
-        this.mOnDiscoverServiceCallBack = mOnDiscoverServiceCallBack;
-        return this;
     }
 
     public BluetoothDeviceBean setmOnCharacteristicWriteCallBack(IOnCharacteristicWriteCallBack mOnCharacteristicWriteCallBack) {
