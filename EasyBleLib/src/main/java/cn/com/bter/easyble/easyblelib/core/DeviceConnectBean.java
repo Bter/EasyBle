@@ -100,6 +100,8 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
             if(mHandler != null){
                 mHandler.removeCallbacks(this);
             }
+            LogUtil.w(TAG,">>>>>>>>>>>>>>connectTimeOut<<<<<<<<<<<<<<<");
+            disConnect();
             connectStatus = BluetoothProfile.STATE_DISCONNECTED;
             poastConnectState(DeviceConnectBean.this, connectStatus);
         }
@@ -124,6 +126,7 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
      */
     public void disConnect(){
         if(null != mBluetoothGatt){
+            LogUtil.w(TAG,">>>>>>>>>>>>>>disconnect by self<<<<<<<<<<<<<<<");
             mBluetoothGatt.disconnect();
             refreshDeviceCache();
         }
