@@ -1,6 +1,7 @@
 package cn.com.bter.easyble.easyblelib.base;
 
 import android.bluetooth.BluetoothDevice;
+import android.support.annotation.CallSuper;
 
 /**
  * BLE基本设备管理
@@ -51,6 +52,7 @@ public class BluetoothDeviceBase {
      * 设置信号强度
      * @param rssi
      */
+    @CallSuper
     public BluetoothDeviceBase setRssi(int rssi) {
         this.rssi = rssi;
         lastRefreshRssiTime = System.currentTimeMillis();

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Handler;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +45,8 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
 
     private boolean isServiceDiscovered = false;
     private Handler mHandler;
+    private HashMap<Integer,Integer> rssis = new HashMap<>();
+    private int position = 0;
 
     DeviceConnectBean(BluetoothDevice device, int rssi, byte[] scanRecord, Handler mHandler) {
         super(device,rssi,scanRecord);
@@ -255,11 +258,35 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
      */
     public boolean readRemoteRssi(){
         if(isConnected() && mBluetoothGatt != null){
-            return mBluetoothGatt.readRemoteRssi();
+             boolean result = mBluetoothGatt.readRemoteRssi();
+            return result;
         }
         return false;
     }
 
+    public BluetoothDeviceBase setRssi(int rssi) {
+        super.setRssi(rssi);
+        this.rssis.put(position,rssi);
+        position += 1;
+        if(position >= 5){
+            position = position % 5;
+        }
+
+        return this;
+    }
+
+    @Override
+    public int getRssi() {
+        int count = 0;
+        if(rssis != null && (count = rssis.size()) > 0){
+            int avg = 0;
+            for (int i : rssis.values()) {
+                avg += i;
+            }
+            return avg / count;
+        }
+        return super.getRssi();
+    }
 
     /**
      *
@@ -312,6 +339,7 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
                     int tempStatus = connectStatus;
                     connectStatus = newState;
                     mBluetoothGatt = gatt;
+                    rssis.clear();
                     if(newState == BluetoothProfile.STATE_DISCONNECTED
                             && tempStatus != BluetoothProfile.STATE_CONNECTED) {
                         //当前状态为断开连接，但从未连接成功过，所以认为是连接失败
