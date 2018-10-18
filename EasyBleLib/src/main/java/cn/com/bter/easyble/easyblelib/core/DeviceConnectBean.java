@@ -10,6 +10,7 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
     private Handler mHandler;
     private HashMap<Integer,Integer> rssis = new HashMap<>();
     private int position = 0;
+    private int mtu = 20;
 
     DeviceConnectBean(BluetoothDevice device, int rssi, byte[] scanRecord, Handler mHandler) {
         super(device,rssi,scanRecord);
@@ -302,6 +304,10 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
         return false;
     }
 
+    protected int getMtu(){
+        return mtu;
+    }
+
     /***********************************操作*************************************************/
 
     protected final UUID formatUUID(String uuid){
@@ -439,6 +445,13 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
         @Override
         public void onMtuChanged(BluetoothGatt gatt, int mtu, int status) {
             super.onMtuChanged(gatt, mtu, status);
+            if(status == BluetoothGatt.GATT_SUCCESS){
+                DeviceConnectBean.this.mtu = mtu;
+                if(mtu < 20){
+                    //最大传输单元小于20byte
+                    Log.w(TAG,">>>>>>>>>>>this mtu is less than 20 (mtu = " + mtu + ")<<<<<<<<<<<<<");
+                }
+            }
             DeviceConnectBean.this.onMtuChanged(DeviceConnectBean.this,mtu,status);
         }
     };

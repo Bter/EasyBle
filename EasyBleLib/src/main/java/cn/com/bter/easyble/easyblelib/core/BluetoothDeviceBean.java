@@ -41,6 +41,8 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
     private IOnReadRemoteRssiCallBack mOnReadRemoteRssiCallBack;
     private IOnMtuChangedCallBack mOnMtuChangedCallBack;
 
+    private boolean isControlSend = false;
+
 
     BluetoothDeviceBean(BluetoothDevice device, int rssi, byte[] scanRecord,Handler mHandler) {
         super(device,rssi,scanRecord,mHandler);
@@ -264,20 +266,28 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
                             | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
                             | BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE)) == 0){
                     LogUtil.w(TAG,"this characteristic(uuid = " + characteristic.getUuid().toString()  +") not support write!");
+                    onCharacteristicWrite(this,characteristic,BluetoothGatt.GATT_FAILURE);
                     return false;
                 }
                 characteristic.setValue(data);
                 characteristic.setWriteType(writeType);
                 LogUtil.d(TAG,">>>>>>>>>>>>device " + characteristic.getService());
-                BluetoothGatt mBluetoothGatt = getBluetoothGatt();
-                if(mBluetoothGatt != null){
-                    boolean result = mBluetoothGatt.writeCharacteristic(characteristic);
-                    return result;
-                }else{
-                    LogUtil.w(TAG,">>>>>>>>>writeCharacteristic fail,because mBluetoothGatt is null<<<<<<<<<");
-                }
+                return writeCharacteristicInner(characteristic);
             }else{
                 LogUtil.w(TAG,">>>>>>>>>writeCharacteristic fail,because characteristic is null<<<<<<<<<");
+            }
+        }
+        return false;
+    }
+
+    synchronized boolean writeCharacteristicInner(BluetoothGattCharacteristic characteristic){
+        if(characteristic != null && isConnected()){
+            BluetoothGatt mBluetoothGatt = getBluetoothGatt();
+            if(mBluetoothGatt != null){
+                boolean result = mBluetoothGatt.writeCharacteristic(characteristic);
+                return result;
+            }else{
+                LogUtil.w(TAG,">>>>>>>>>writeCharacteristic fail,because mBluetoothGatt is null<<<<<<<<<");
             }
         }
         return false;
