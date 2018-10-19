@@ -602,7 +602,7 @@ public class OptionsFragment extends Fragment {
      */
     private OptionsCallBack mOptionsCallBack= new OptionsCallBack() {
         @Override
-        public void onCharacteristicWrite(BluetoothDeviceBean device, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothDeviceBean device, byte[] data, int status) {
             if(status == 0) {
                 LogUtil.w("onCharacteristicWrite", Thread.currentThread().getName() + " status = " + status);
             }else{

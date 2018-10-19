@@ -551,7 +551,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
     @Override
     protected void onCharacteristicWrite(DeviceConnectBean deviceConnectBean, BluetoothGattCharacteristic characteristic, int status) {
         if(null != mOnCharacteristicWriteCallBack){
-            mOnCharacteristicWriteCallBack.onCharacteristicWrite(BluetoothDeviceBean.this,characteristic,status);
+            mOnCharacteristicWriteCallBack.onCharacteristicWrite(BluetoothDeviceBean.this,characteristic.getValue(),status);
         }
     }
 

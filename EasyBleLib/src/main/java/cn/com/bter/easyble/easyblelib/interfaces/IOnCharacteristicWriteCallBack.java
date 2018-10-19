@@ -13,8 +13,8 @@ public interface IOnCharacteristicWriteCallBack {
     /**
      * {@link android.bluetooth.BluetoothGattCallback#onCharacteristicWrite(BluetoothGatt, BluetoothGattCharacteristic, int)}
      * @param device
-     * @param characteristic
+     * @param data
      * @param status
      */
-    void onCharacteristicWrite(BluetoothDeviceBean device, BluetoothGattCharacteristic characteristic, int status);
+    void onCharacteristicWrite(BluetoothDeviceBean device, byte[] data, int status);
 }
