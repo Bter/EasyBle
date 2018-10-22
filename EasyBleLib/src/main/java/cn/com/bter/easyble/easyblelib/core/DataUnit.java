@@ -4,16 +4,25 @@ import android.bluetooth.BluetoothGattCharacteristic;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicWriteCallBack;
 
-class DataUnit {
+public class DataUnit {
     private BluetoothGattCharacteristic characteristic;
     private IOnCharacteristicWriteCallBack callBack;
     private int writeType;
     private byte[] dataBuf;
     private ByteArrayInputStream bais;
     private int count = 0;
+    private Lock lock = new ReentrantLock(true);
+
+    public DataUnit(IOnCharacteristicWriteCallBack callBack, byte[] dataBuf) {
+        this.callBack = callBack;
+        this.dataBuf = dataBuf;
+    }
 
     public DataUnit(BluetoothGattCharacteristic characteristic, IOnCharacteristicWriteCallBack callBack, int writeType, byte[] dataBuf) {
         this.characteristic = characteristic;
@@ -21,6 +30,22 @@ class DataUnit {
         this.writeType = writeType;
         this.dataBuf = dataBuf;
         bais = new ByteArrayInputStream(dataBuf);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj){
+            return true;
+        }
+        if(obj == null || !(obj instanceof DataUnit)){
+            return false;
+        }
+        DataUnit item = (DataUnit) obj;
+        if((callBack != null && callBack.equals(item.callBack)) || (callBack == null && item.callBack == null)){
+           return Arrays.equals(dataBuf,item.dataBuf);
+        }else{
+            return false;
+        }
     }
 
     IOnCharacteristicWriteCallBack getCallBack() {
@@ -36,20 +61,26 @@ class DataUnit {
      * @return
      */
     boolean isEnd(){
+        lock.lock();
+        boolean result = true;
         if(dataBuf != null && dataBuf.length != count){
-            return false;
+            result = false;
         }
-        return true;
+        lock.unlock();
+        return result;
     }
 
-    synchronized BluetoothGattCharacteristic getNextData(int mtu){
+    BluetoothGattCharacteristic getNextData(int mtu){
         if(bais == null || characteristic == null)return null;
+
+        lock.lock();
 
         byte[] buf = new byte[mtu];
         if(mtu > 0){
             try {
                 int len = bais.read(buf);
                 if(len == -1){
+                    lock.unlock();
                     return null;
                 }
                 count += len;
@@ -63,12 +94,14 @@ class DataUnit {
                 }
                 characteristic.setValue(value);
                 characteristic.setWriteType(writeType);
+                lock.unlock();
                 return characteristic;
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
+        lock.unlock();
         return null;
     }
 }

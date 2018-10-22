@@ -363,6 +363,7 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
                 }
 
                 if(newState == BluetoothProfile.STATE_DISCONNECTED){
+                    onDeviceDisConnected();
                     close();//需要这么调用吗？
                 }
 
@@ -455,6 +456,9 @@ public abstract class DeviceConnectBean extends BluetoothDeviceBase {
             DeviceConnectBean.this.onMtuChanged(DeviceConnectBean.this,mtu,status);
         }
     };
+
+    protected void onDeviceDisConnected() {
+    }
 
     protected abstract void onMtuChanged(DeviceConnectBean deviceConnectBean, int mtu, int status);
     protected abstract void onReadRemoteRssi(DeviceConnectBean deviceConnectBean, int status);

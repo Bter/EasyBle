@@ -32,7 +32,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
 
     private static final String UUID_CLIENT_CHARACTERISTIC_CONFIG_DESCRIPTOR = "00002902-0000-1000-8000-00805f9b34fb";
 
-    private IOnCharacteristicWriteCallBack mOnCharacteristicWriteCallBack;
+    private IOnCharacteristicWriteCallBack callBack;
     private IOnCharacteristicReadCallBack mOnCharacteristicReadCallBack;
     private IOnCharacteristicChangedCallBack mOnCharacteristicChangedCallBack;
     private IOnDescriptorReadCallBack mOnDescriptorReadCallBack;
@@ -41,11 +41,16 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
     private IOnReadRemoteRssiCallBack mOnReadRemoteRssiCallBack;
     private IOnMtuChangedCallBack mOnMtuChangedCallBack;
 
-    private boolean isControlSend = false;
+    private SendControl sendControl;
+    /**
+     * 是否进行发送控制
+     */
+    private boolean isControlSend = true;
 
 
     BluetoothDeviceBean(BluetoothDevice device, int rssi, byte[] scanRecord,Handler mHandler) {
         super(device,rssi,scanRecord,mHandler);
+        sendControl = new SendControl(this);
     }
 
     /***********************************操作*************************************************/
@@ -175,6 +180,18 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         return false;
     }
 
+    public boolean isControlSend() {
+        return isControlSend;
+    }
+
+    /**
+     * 是否要进行发送控制
+     * @param controlSend
+     */
+    public void setControlSend(boolean controlSend) {
+        isControlSend = controlSend;
+    }
+
     /**
      * write no response
      * 写
@@ -182,10 +199,10 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * @param writeUUID
      * @param data
      * @return {@link BluetoothGatt#writeCharacteristic(BluetoothGattCharacteristic)}
-     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, BluetoothGattCharacteristic, int)}
+     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, byte[], int)}
      */
-    public boolean writeNoResponse(String serviceUUID,String writeUUID,byte[] data){
-        return write(serviceUUID,writeUUID,data,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+    public void writeNoResponse(String serviceUUID,String writeUUID,byte[] data,IOnCharacteristicWriteCallBack callBack){
+        write(serviceUUID,writeUUID,data,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE,callBack);
     }
 
     /**
@@ -198,9 +215,9 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * @param data
      * @return
      */
-    public boolean writeAutoIndentifyType(String serviceUUID,String writeUUID,byte[] data){
+    public void writeAutoIndentifyType(String serviceUUID,String writeUUID,byte[] data,IOnCharacteristicWriteCallBack callBack){
         BluetoothGattCharacteristic characteristic = getCharacteristic(serviceUUID,writeUUID,"writeAutoIndentifyType");
-        return writeAutoIndentifyType(characteristic,data);
+        writeAutoIndentifyType(characteristic,data,callBack);
     }
 
     /**
@@ -211,7 +228,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * @param data
      * @return
      */
-    public boolean writeAutoIndentifyType(BluetoothGattCharacteristic characteristic,byte[] data){
+    public void writeAutoIndentifyType(BluetoothGattCharacteristic characteristic,byte[] data,IOnCharacteristicWriteCallBack callBack){
         int type = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT;
         if(characteristic != null) {
             int properties = characteristic.getProperties();
@@ -225,7 +242,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         }else{
             LogUtil.w(TAG,"write fail this BluetoothGattCharacteristic is null");
         }
-        return writeCharacteristic(characteristic,data,type);
+        writeCharacteristic(characteristic,data,type,callBack);
     }
 
     /**
@@ -240,10 +257,10 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      *                  {@link BluetoothGattCharacteristic#WRITE_TYPE_NO_RESPONSE} or
      *                  {@link BluetoothGattCharacteristic#WRITE_TYPE_SIGNED}.
      * @return {@link BluetoothGatt#writeCharacteristic(BluetoothGattCharacteristic)}
-     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, BluetoothGattCharacteristic, int)}
+     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, byte[], int)}
      */
-    public boolean write(String serviceUUID,String writeUUID,byte[] data,int writeType){
-        return writeCharacteristic(getCharacteristic(serviceUUID,writeUUID,"write"),data,writeType);
+    public void write(String serviceUUID,String writeUUID,byte[] data,int writeType,IOnCharacteristicWriteCallBack callBack){
+        writeCharacteristic(getCharacteristic(serviceUUID,writeUUID,"write"),data,writeType,callBack);
     }
 
     /**
@@ -256,9 +273,9 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      *                  {@link BluetoothGattCharacteristic#WRITE_TYPE_NO_RESPONSE} or
      *                  {@link BluetoothGattCharacteristic#WRITE_TYPE_SIGNED}.
      * @return {@link BluetoothGatt#writeCharacteristic(BluetoothGattCharacteristic)}
-     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, BluetoothGattCharacteristic, int)}
+     * data call back {@link IOnCharacteristicWriteCallBack#onCharacteristicWrite(BluetoothDeviceBean, byte[], int)}
      */
-    public synchronized boolean writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] data,int writeType){
+    public synchronized void writeCharacteristic(BluetoothGattCharacteristic characteristic, byte[] data,int writeType,IOnCharacteristicWriteCallBack callBack){
         if(null != data && data.length > 0){
             if(characteristic != null){
                 if((characteristic.getProperties()
@@ -266,18 +283,47 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
                             | BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE
                             | BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE)) == 0){
                     LogUtil.w(TAG,"this characteristic(uuid = " + characteristic.getUuid().toString()  +") not support write!");
-                    onCharacteristicWrite(this,characteristic,BluetoothGatt.GATT_FAILURE);
-                    return false;
+                    notifyWriteFail(callBack,data);
+                    return;
                 }
-                characteristic.setValue(data);
-                characteristic.setWriteType(writeType);
+
                 LogUtil.d(TAG,">>>>>>>>>>>>device " + characteristic.getService());
-                return writeCharacteristicInner(characteristic);
+                if(isControlSend) {
+                    sendControl.write(characteristic, callBack, data, writeType);
+                }else {
+                    characteristic.setValue(data);
+                    characteristic.setWriteType(writeType);
+                    boolean result = writeCharacteristicInner(characteristic);
+                    if(!result){
+                        notifyWriteFail(callBack,data);
+                    }else{
+                        this.callBack = callBack;
+                    }
+                }
+                return;
             }else{
                 LogUtil.w(TAG,">>>>>>>>>writeCharacteristic fail,because characteristic is null<<<<<<<<<");
             }
         }
-        return false;
+        notifyWriteFail(callBack,data);
+        return;
+    }
+
+    /**
+     * 取消发送
+     * 如果还未发送可以取消发送
+     * @param callBack
+     * @param dataBuf
+     * @return
+     */
+    public boolean cancleWrite(IOnCharacteristicWriteCallBack callBack,byte[] dataBuf){
+        return sendControl.cancleSend(callBack,dataBuf);
+    }
+
+    private void notifyWriteFail(IOnCharacteristicWriteCallBack callBack,byte[] data){
+        if(callBack != null){
+            callBack.onCharacteristicWrite(this,data,BluetoothGatt.GATT_FAILURE);
+        }
     }
 
     synchronized boolean writeCharacteristicInner(BluetoothGattCharacteristic characteristic){
@@ -550,8 +596,12 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
 
     @Override
     protected void onCharacteristicWrite(DeviceConnectBean deviceConnectBean, BluetoothGattCharacteristic characteristic, int status) {
-        if(null != mOnCharacteristicWriteCallBack){
-            mOnCharacteristicWriteCallBack.onCharacteristicWrite(BluetoothDeviceBean.this,characteristic.getValue(),status);
+        if(isControlSend && sendControl.isWriteing()) {
+            sendControl.getWriteCallBack().onCharacteristicWrite(BluetoothDeviceBean.this, characteristic.getValue(), status);
+        }else{
+            if(callBack != null){
+                callBack.onCharacteristicWrite(this,characteristic.getValue(),status);
+            }
         }
     }
 
@@ -560,11 +610,6 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         if(null != mOnCharacteristicReadCallBack){
             mOnCharacteristicReadCallBack.onCharacteristicRead(BluetoothDeviceBean.this,characteristic,status);
         }
-    }
-
-    public BluetoothDeviceBean setmOnCharacteristicWriteCallBack(IOnCharacteristicWriteCallBack mOnCharacteristicWriteCallBack) {
-        this.mOnCharacteristicWriteCallBack = mOnCharacteristicWriteCallBack;
-        return this;
     }
 
     public BluetoothDeviceBean setmOnCharacteristicReadCallBack(IOnCharacteristicReadCallBack mOnCharacteristicReadCallBack) {
@@ -600,5 +645,11 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
     public BluetoothDeviceBean setmOnMtuChangedCallBack(IOnMtuChangedCallBack mOnMtuChangedCallBack) {
         this.mOnMtuChangedCallBack = mOnMtuChangedCallBack;
         return this;
+    }
+
+    @Override
+    protected void onDeviceDisConnected() {
+        super.onDeviceDisConnected();
+        sendControl.bleDisconnect();
     }
 }

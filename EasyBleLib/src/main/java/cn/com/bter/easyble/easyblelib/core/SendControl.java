@@ -8,6 +8,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import cn.com.bter.easyble.easyblelib.interfaces.IOnCharacteristicWriteCallBack;
 
+/**
+ * 发送控制
+ */
 class SendControl {
     private BluetoothDeviceBean deviceBean;
     private ConcurrentLinkedQueue<DataUnit> linkedQueue = new ConcurrentLinkedQueue();
@@ -18,14 +21,20 @@ class SendControl {
         @Override
         public void onCharacteristicWrite(BluetoothDeviceBean device, byte[] data, int status) {
             if(status != BluetoothGatt.GATT_SUCCESS){
-                notifyResult(BluetoothGatt.GATT_FAILURE);
+                notifyResult(currentDataUnit,BluetoothGatt.GATT_FAILURE);
+                writeNext();
+                return;
             }
             doWrite();
         }
     };
 
-    public SendControl(BluetoothDeviceBean deviceBean, BluetoothGattCharacteristic characteristic) {
+    public SendControl(BluetoothDeviceBean deviceBean) {
         this.deviceBean = deviceBean;
+    }
+
+    boolean isWriteing() {
+        return isWriteing;
     }
 
     /**
@@ -48,16 +57,26 @@ class SendControl {
         }
     }
 
+    /**
+     * 取消发送
+     * @param callBack
+     * @param dataBuf
+     */
+    public boolean cancleSend(IOnCharacteristicWriteCallBack callBack,byte[] dataBuf){
+        return linkedQueue.remove(new DataUnit(callBack,dataBuf));
+    }
+
     private void doWrite(){
         if(currentDataUnit == null){
             writeNext();
         }else if(currentDataUnit.isEnd()){
-            notifyResult(BluetoothGatt.GATT_SUCCESS);
+            notifyResult(currentDataUnit,BluetoothGatt.GATT_SUCCESS);
             writeNext();
         }else{
-            if(deviceBean.writeCharacteristicInner(currentDataUnit.getNextData(deviceBean.getMtu()))){
+            if(!deviceBean.writeCharacteristicInner(currentDataUnit.getNextData(deviceBean.getMtu()))){
                 //发送失败
-                notifyResult(BluetoothGatt.GATT_FAILURE);
+                notifyResult(currentDataUnit,BluetoothGatt.GATT_FAILURE);
+                writeNext();
             }
         }
     }
@@ -69,14 +88,15 @@ class SendControl {
             isWriteing = false;
             return;
         }
-        if(deviceBean.writeCharacteristicInner(currentDataUnit.getNextData(deviceBean.getMtu()))){
+        if(!deviceBean.writeCharacteristicInner(currentDataUnit.getNextData(deviceBean.getMtu()))){
             //发送失败
-            notifyResult(BluetoothGatt.GATT_FAILURE);
+            notifyResult(currentDataUnit,BluetoothGatt.GATT_FAILURE);
+            writeNext();
         }
     }
 
-    private void notifyResult(int result){
-        IOnCharacteristicWriteCallBack callBack = currentDataUnit.getCallBack();
+    private void notifyResult(DataUnit currentDataUnit,int result){
+        IOnCharacteristicWriteCallBack callBack;
         if(currentDataUnit != null && (callBack = currentDataUnit.getCallBack()) != null) {
             callBack.onCharacteristicWrite(deviceBean, currentDataUnit.getDataBuf(), result);
         }

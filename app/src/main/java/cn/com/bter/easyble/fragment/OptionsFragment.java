@@ -366,7 +366,7 @@ public class OptionsFragment extends Fragment {
      * @param cmdEditText
      * @return
      */
-    private boolean write(CheckBox checkBox,EditText cmdEditText){
+    private void write(CheckBox checkBox,EditText cmdEditText){
         boolean isHex = false;
         if(checkBox != null) {
             isHex = checkBox.isChecked();
@@ -375,21 +375,24 @@ public class OptionsFragment extends Fragment {
                 && cmdEditText.getText().toString() != null){
             String str = cmdEditText.getText().toString();
 
-            return write(isHex,str);
+            write(isHex,str);
+            return;
         }
-        return false;
+        return;
     }
 
-    private boolean write(boolean isHex,String dataStr){
+    private void write(boolean isHex,String dataStr){
 
         if(dataStr != null){
             if(!isHex){
-                return write(dataStr.getBytes());
+                write(dataStr.getBytes());
+                return;
             }else{
                 try {
                     byte[] data = CommonUtils.hexAsciiStrs2Bytes(dataStr);
                     if(data != null) {
-                        return write(data);
+                        write(data);
+                        return;
                     }else{
                         showToast("输入的16进制不正确");
                     }
@@ -401,7 +404,7 @@ public class OptionsFragment extends Fragment {
             }
         }
 
-        return false;
+        return;
     }
 
     /**
@@ -409,18 +412,19 @@ public class OptionsFragment extends Fragment {
      * @param data
      * @return
      */
-    private boolean write(byte[] data){
+    private void write(byte[] data){
         if(device != null) {
             if(device.isConnected()) {
                 LogUtil.i("write", "data = " + CommonUtils.bytes2HexString(data,true));
-                return write(writeBluetoothGattCharacteristic, data);
+                write(writeBluetoothGattCharacteristic, data);
+                return;
             }else {
                 showToast("设备未连接");
             }
         }else {
             showToast("没有选择设备，请到主界面选择设备");
         }
-        return false;
+        return;
     }
 
     /**
@@ -429,22 +433,24 @@ public class OptionsFragment extends Fragment {
      * @param data
      * @return
      */
-    private boolean write(BluetoothGattCharacteristic characteristic,byte[] data){
+    private void write(BluetoothGattCharacteristic characteristic,byte[] data){
         if(characteristic != null) {
             if (device != null && data != null && data.length > 0) {
                 if (!checkWrite(characteristic.getProperties())) {
-                    return false;
+                    return;
                 }
                 if(!checkboxNoRespone.isChecked()) {
-                    return device.writeAutoIndentifyType(characteristic, data);
+                    device.writeAutoIndentifyType(characteristic, data,mOptionsCallBack);
+                    return;
                 }else{
-                    return device.writeCharacteristic(characteristic, data,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE);
+                    device.writeCharacteristic(characteristic, data,BluetoothGattCharacteristic.WRITE_TYPE_NO_RESPONSE,mOptionsCallBack);
+                    return;
                 }
             }
         }else{
             showToast("请选择要写的服务");
         }
-        return false;
+        return;
     }
 
     private boolean read(){
@@ -527,8 +533,7 @@ public class OptionsFragment extends Fragment {
                 if(null != connectState && device != null){
 
                     device.setmOnCharacteristicChangedCallBack(mOptionsCallBack)
-                            .setmOnCharacteristicReadCallBack(mOptionsCallBack)
-                            .setmOnCharacteristicWriteCallBack(mOptionsCallBack);
+                            .setmOnCharacteristicReadCallBack(mOptionsCallBack);
 
                     String str = "未连接";
                     switch (device.getConnectStatus()){
@@ -607,6 +612,9 @@ public class OptionsFragment extends Fragment {
                 LogUtil.w("onCharacteristicWrite", Thread.currentThread().getName() + " status = " + status);
             }else{
                 LogUtil.e("onCharacteristicWrite", Thread.currentThread().getName() + "write fail status = " + status);
+            }
+            if(data != null){
+                LogUtil.d(CommonUtils.bytes2HexString(data,true));
             }
         }
 
