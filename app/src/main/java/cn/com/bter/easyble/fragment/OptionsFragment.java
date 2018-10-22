@@ -23,6 +23,7 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Arrays;
 import java.util.List;
 
 import cn.com.bter.easyble.MainActivity;
@@ -257,15 +258,15 @@ public class OptionsFragment extends Fragment {
                     write(checkbox1,editTextContent1);
                     break;
                 case R.id.writeBtn2:
-//                    write(checkbox2,editTextContent2);
+                    write(checkbox2,editTextContent2);
 
-                    if(!isTestTaskRun) {
+                    /*if(!isTestTaskRun) {
                         backHandler.postDelayed(testTask, delayTime);
                     }else{
                         backHandler.removeCallbacks(testTask);
                     }
 
-                    isTestTaskRun = true;
+                    isTestTaskRun = !isTestTaskRun;*/
                     break;
                 case R.id.writeBtn3:
                     write(checkbox3,editTextContent3);
@@ -300,10 +301,12 @@ public class OptionsFragment extends Fragment {
         int i = 0;
         @Override
         public void run() {
-            backHandler.removeCallbacks(this);
-            write(false,"" + i);
-            i++;
-            backHandler.postDelayed(this,delayTime);
+            LogUtil.d(" i = " + (++i));
+            if(i >= 25600){
+                isTestTaskRun = false;
+                i = 0;
+            }
+            write(new byte[]{0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,0x18,0x19,0x20});
         }
     };
     /***

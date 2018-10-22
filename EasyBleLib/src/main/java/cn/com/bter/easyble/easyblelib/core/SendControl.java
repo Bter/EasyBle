@@ -95,10 +95,19 @@ class SendControl {
         }
     }
 
-    private void notifyResult(DataUnit currentDataUnit,int result){
-        IOnCharacteristicWriteCallBack callBack;
-        if(currentDataUnit != null && (callBack = currentDataUnit.getCallBack()) != null) {
-            callBack.onCharacteristicWrite(deviceBean, currentDataUnit.getDataBuf(), result);
-        }
+    private void notifyResult(final DataUnit currentDataUnit, final int result){
+        WriteCallThread.getInstance().excuteTask(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    IOnCharacteristicWriteCallBack callBack;
+                    if(currentDataUnit != null && (callBack = currentDataUnit.getCallBack()) != null) {
+                        callBack.onCharacteristicWrite(deviceBean, currentDataUnit.getDataBuf(), result);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }
