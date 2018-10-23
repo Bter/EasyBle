@@ -91,6 +91,10 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         return null;
     }
 
+    public void initNotifys(){
+
+    }
+
     /**
      * enable notify
      * 打开通知监听
@@ -511,7 +515,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * @param descriptor
      * @return  {@link BluetoothGatt#writeDescriptor(BluetoothGattDescriptor)}
      */
-    public boolean writeDescriptor(BluetoothGattDescriptor descriptor){
+    private boolean writeDescriptor(BluetoothGattDescriptor descriptor){
         BluetoothGatt mBluetoothGatt = getBluetoothGatt();
         if(mBluetoothGatt != null){
             return mBluetoothGatt.writeDescriptor(descriptor);
@@ -584,9 +588,9 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
 
     @Override
     protected void onDescriptorWrite(DeviceConnectBean deviceConnectBean, BluetoothGattDescriptor descriptor, int status) {
-        if(null != mOnDescriptorWriteCallBack){
+        /*if(null != mOnDescriptorWriteCallBack){
             mOnDescriptorWriteCallBack.onDescriptorWrite(BluetoothDeviceBean.this,descriptor,status);
-        }
+        }*/
     }
 
     @Override

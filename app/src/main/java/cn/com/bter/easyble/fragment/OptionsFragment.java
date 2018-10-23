@@ -2,6 +2,7 @@ package cn.com.bter.easyble.fragment;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
@@ -530,6 +531,8 @@ public class OptionsFragment extends Fragment {
                 if(null != connectState && device != null){
 
                     device.setmOnCharacteristicChangedCallBack(mOptionsCallBack)
+                            .setmOnMtuChangedCallBack(mOptionsCallBack)
+                            .setmOnDescriptorWriteCallBack(mOptionsCallBack)
                             .setmOnCharacteristicReadCallBack(mOptionsCallBack);
 
                     String str = "未连接";
@@ -603,6 +606,16 @@ public class OptionsFragment extends Fragment {
      * 读写操作回调
      */
     private OptionsCallBack mOptionsCallBack= new OptionsCallBack() {
+        @Override
+        public void onMtuChanged(BluetoothDeviceBean device, int mtu, int status) {
+            LogUtil.d("onMtuChanged","mtu = " + mtu + " >>> " + status);
+        }
+
+        @Override
+        public void onDescriptorWrite(BluetoothDeviceBean device, BluetoothGattDescriptor descriptor, int status) {
+            LogUtil.d("onDescriptorWrite",">>>>>>>>>>>>>>>>>>>>" + status);
+        }
+
         @Override
         public void onCharacteristicWrite(BluetoothDeviceBean device, byte[] data, int status) {
             if(status == 0) {
