@@ -2,6 +2,8 @@ package cn.com.bter.easyble.easyblelib.core;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.os.Handler;
+import android.os.Looper;
 
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -16,6 +18,14 @@ class SendControl {
     private ConcurrentLinkedQueue<DataUnit> linkedQueue = new ConcurrentLinkedQueue();
     private DataUnit currentDataUnit;
     private boolean isWriteing = false;
+    private long lastWriteTime = -1;
+    /**
+     * 延迟时间
+     * 发完上一条数据与下一条数据的最小间隔
+     * 负数表示不做延迟
+     */
+    private int delayTime = -1;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     private IOnCharacteristicWriteCallBack writeCallBack = new IOnCharacteristicWriteCallBack() {
         @Override
@@ -43,6 +53,20 @@ class SendControl {
     void bleDisconnect(){
         isWriteing = false;
         linkedQueue.clear();
+    }
+
+    /**
+     * 设置写间隔<br/>
+     * 作用：可用于调节带宽，防止数据带宽过大导致对端下位机处理不过来，<br/>
+     * 主要是由于下位机性能低导致的。<br/>
+     *
+     * <br/>
+     * 一般如果要设置都是至少30ms<br/>
+     * 负数表示不进行间隔<br/>
+     * @param delayTime ms
+     */
+    void setDelayTime(int delayTime) {
+        this.delayTime = delayTime;
     }
 
     IOnCharacteristicWriteCallBack getWriteCallBack(){
@@ -73,6 +97,18 @@ class SendControl {
             notifyResult(currentDataUnit,BluetoothGatt.GATT_SUCCESS);
             writeNext();
         }else{
+            long currentTime = System.currentTimeMillis();
+            if(currentTime - lastWriteTime < delayTime){
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        doWrite();
+                    }
+                },(delayTime - (currentTime - lastWriteTime)) );
+                return;
+            }
+            lastWriteTime = currentTime;
+
             if(!deviceBean.writeCharacteristicInner(currentDataUnit.getNextData(deviceBean.getMtu()))){
                 //发送失败
                 notifyResult(currentDataUnit,BluetoothGatt.GATT_FAILURE);
@@ -82,6 +118,18 @@ class SendControl {
     }
 
     private void writeNext(){
+        long currentTime = System.currentTimeMillis();
+        if(currentTime - lastWriteTime < delayTime){
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    writeNext();
+                }
+            },(delayTime - (currentTime - lastWriteTime)) );
+            return;
+        }
+        lastWriteTime = currentTime;
+
         currentDataUnit = linkedQueue.poll();
         if(currentDataUnit == null){
             //队列中没有再可发的数据

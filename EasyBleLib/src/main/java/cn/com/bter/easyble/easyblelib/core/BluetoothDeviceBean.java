@@ -310,6 +310,20 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
     }
 
     /**
+     * 设置写间隔<br/>
+     * 作用：可用于调节带宽，防止数据带宽过大导致对端下位机处理不过来，<br/>
+     * 主要是由于下位机性能低导致的。<br/>
+     *
+     * <br/>
+     * 一般如果要设置都是至少30ms<br/>
+     * 负数表示不进行间隔<br/>
+     * @param delayTime ms
+     */
+    public void setWriteDelayTime(int delayTime) {
+        sendControl.setDelayTime(delayTime);
+    }
+
+    /**
      * 取消发送
      * 如果还未发送可以取消发送
      * @param callBack

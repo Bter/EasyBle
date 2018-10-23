@@ -260,13 +260,7 @@ public class OptionsFragment extends Fragment {
                 case R.id.writeBtn2:
                     write(checkbox2,editTextContent2);
 
-                    /*if(!isTestTaskRun) {
-                        backHandler.postDelayed(testTask, delayTime);
-                    }else{
-                        backHandler.removeCallbacks(testTask);
-                    }
-
-                    isTestTaskRun = !isTestTaskRun;*/
+                    isTestTaskRun = !isTestTaskRun;
                     break;
                 case R.id.writeBtn3:
                     write(checkbox3,editTextContent3);
@@ -615,9 +609,6 @@ public class OptionsFragment extends Fragment {
                 LogUtil.w("onCharacteristicWrite", Thread.currentThread().getName() + " status = " + status);
             }else{
                 LogUtil.e("onCharacteristicWrite", Thread.currentThread().getName() + "write fail status = " + status);
-            }
-            if(data != null){
-                LogUtil.d(CommonUtils.bytes2HexString(data,true));
             }
         }
 
