@@ -47,6 +47,8 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      */
     private boolean isControlSend = true;
 
+    private InitBuild initBuild;
+
 
     BluetoothDeviceBean(BluetoothDevice device, int rssi, byte[] scanRecord,Handler mHandler) {
         super(device,rssi,scanRecord,mHandler);
@@ -91,8 +93,11 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
         return null;
     }
 
-    public void initNotifys(){
-
+    public void initNotifys(InitBuild build){
+        if(build == null)return;
+        this.initBuild = build;
+        initBuild.setDeviceBean(this);
+        initBuild.doInit();
     }
 
     /**
@@ -104,11 +109,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * data call back {@link IOnCharacteristicChangedCallBack#onCharacteristicChanged(BluetoothDeviceBean, BluetoothGattCharacteristic)}
      */
     public boolean enableNotify(String serviceUUID, String notifyUUID){
-        return changeNotify(serviceUUID,notifyUUID,true,"enableNotify");
-    }
-
-    public boolean enalbeNotifyByFixNotifyValue(String serviceUUID,String notifyUUID,byte[] FIX_NOTIFICATION_VALUE){
-        return setNotification(getCharacteristic(serviceUUID,notifyUUID,"enalbeNotifyByFixNotifyValue"),true,FIX_NOTIFICATION_VALUE);
+        return setNotification(getCharacteristic(serviceUUID,notifyUUID,"enableNotify"),true);
     }
 
     /**
@@ -120,20 +121,7 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
      * data call back {@link IOnCharacteristicChangedCallBack#onCharacteristicChanged(BluetoothDeviceBean, BluetoothGattCharacteristic)}
      */
     public boolean disableNofify(String serviceUUID,String notifyUUID){
-        return changeNotify(serviceUUID,notifyUUID,false,"disableNofify");
-    }
-
-    /**
-     * change notify
-     * 改变通知
-     * @param serviceUUID
-     * @param notifyUUID
-     * @param isEnable
-     * @return {@link BluetoothGatt#writeDescriptor(BluetoothGattDescriptor)} {@link BluetoothGatt#setCharacteristicNotification(BluetoothGattCharacteristic, boolean)}
-     * data call back {@link IOnCharacteristicChangedCallBack#onCharacteristicChanged(BluetoothDeviceBean, BluetoothGattCharacteristic)}
-     */
-    private boolean changeNotify(String serviceUUID, String notifyUUID, boolean isEnable,String descri){
-        return setNotification(getCharacteristic(serviceUUID,notifyUUID,descri),isEnable);
+        return setNotification(getCharacteristic(serviceUUID,notifyUUID,"disableNofify"),false);
     }
 
     /**
@@ -588,6 +576,9 @@ public class BluetoothDeviceBean extends DeviceConnectBean {
 
     @Override
     protected void onDescriptorWrite(DeviceConnectBean deviceConnectBean, BluetoothGattDescriptor descriptor, int status) {
+        if(initBuild != null){
+            initBuild.handResult(status == BluetoothGatt.GATT_SUCCESS ? true : false);
+        }
         /*if(null != mOnDescriptorWriteCallBack){
             mOnDescriptorWriteCallBack.onDescriptorWrite(BluetoothDeviceBean.this,descriptor,status);
         }*/
